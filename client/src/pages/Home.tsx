@@ -1,134 +1,74 @@
 import { useMemo, useState } from "react";
+import type { LucideIcon } from "lucide-react";
 import {
-  ArrowUpLeft,
-  BrainCircuit,
-  Check,
-  ChevronLeft,
-  CirclePlay,
-  Clock3,
-  Code2,
-  Download,
-  Layers3,
-  Menu,
-  Mic2,
-  Orbit,
-  Palette,
-  Play,
-  Search,
-  Sparkles,
-  Users,
-  WandSparkles,
-  X,
-  Zap,
+  ArrowLeft, ArrowUpLeft, BookOpen, Bookmark, Bot, CalendarDays, Check, ChevronDown, Clock3,
+  Heart, Library, Menu, MessageCircle, Moon, Search, Send, ShoppingBag, Sparkles, Star,
+  Tag, TrendingUp, UserRound, WandSparkles, X, Zap,
 } from "lucide-react";
 
-type Product = {
-  id: number;
-  title: string;
-  category: string;
-  categoryLabel: string;
-  description: string;
-  icon: typeof BrainCircuit;
-  accent: string;
-  tag: string;
-  meta: string;
-  featured?: boolean;
-};
+type Book = { id: number; title: string; author: string; category: string; price: string; oldPrice: string; rating: string; reviews: string; badge: string; cover: string; accent: string; format: string; description: string };
 
-const products: Product[] = [
-  { id: 1, title: "مسار الذكاء المهني", category: "مسارات", categoryLabel: "مسار تعليمي", description: "رحلة تعلم تكيفية تبني مهارات المستقبل خطوة بخطوة، من الأساسيات إلى التطبيق العملي.", icon: Orbit, accent: "cyan", tag: "الأكثر طلباً", meta: "12 وحدة · 4 أسابيع", featured: true },
-  { id: 2, title: "استوديو فكرة", category: "أدوات", categoryLabel: "أداة إبداعية", description: "حوّل الفكرة إلى خطة مشروع متكاملة مع مساعد ذكي يفهم سوق العمل المحلي.", icon: WandSparkles, accent: "gold", tag: "جديد", meta: "مجاني · متاح الآن" },
-  { id: 3, title: "المحاكاة المهنية", category: "محاكاة", categoryLabel: "تجربة تفاعلية", description: "تدرّب على مواقف العمل الحقيقية في بيئة آمنة، واحصل على ملاحظات ذكية وفورية.", icon: Layers3, accent: "violet", tag: "تجريبي", meta: "8 تجارب · تفاعلي" },
-  { id: 4, title: "صانع المحتوى التقني", category: "أدوات", categoryLabel: "أداة إنتاجية", description: "أنشئ محتوى تدريبي واضحاً، منظماً، وجاهزاً للمشاركة في دقائق معدودة.", icon: Palette, accent: "coral", tag: "محبوب", meta: "18 قالب · يدعم العربية" },
-  { id: 5, title: "مرشد المسار الوظيفي", category: "إرشاد", categoryLabel: "مساعد ذكي", description: "حلّل مهاراتك واكتشف الفرص الأقرب إليك مع توصيات عملية قابلة للتنفيذ.", icon: Users, accent: "cyan", tag: "للجميع", meta: "تقييم 360° · شخصي" },
-  { id: 6, title: "مختبر الكود المرئي", category: "محاكاة", categoryLabel: "مختبر عملي", description: "تعلم البرمجة عبر تحديات بصرية قصيرة ومشاريع صغيرة ترفع ثقتك بنفسك.", icon: Code2, accent: "gold", tag: "للمبتدئين", meta: "24 تحدياً · 6 مستويات" },
+const books: Book[] = [
+  { id: 1, title: "فن اللامبالاة الذكية", author: "سارة العتيبي", category: "تطوير الذات", price: "39 ر.س", oldPrice: "59 ر.س", rating: "4.9", reviews: "128", badge: "الأكثر مبيعًا", cover: "فن اللامبالاة", accent: "coral", format: "ورقي + رقمي", description: "دليل عملي هادئ يساعدك على ترتيب أولوياتك وصناعة حياة أكثر وضوحًا واتزانًا." },
+  { id: 2, title: "ابدأ مشروعك الآن", author: "خالد المنصور", category: "الأعمال", price: "49 ر.س", oldPrice: "75 ر.س", rating: "4.8", reviews: "96", badge: "خصم 35%", cover: "ابدأ مشروعك", accent: "navy", format: "رقمي", description: "من الفكرة إلى أول عميل: خطوات عملية لبناء مشروع صغير قابل للنمو." },
+  { id: 3, title: "الذكاء الاصطناعي ببساطة", author: "د. مريم حجازي", category: "الذكاء الاصطناعي", price: "55 ر.س", oldPrice: "65 ر.س", rating: "4.9", reviews: "74", badge: "جديد", cover: "AI ببساطة", accent: "violet", format: "ورقي + رقمي", description: "مدخل عربي ممتع لفهم الذكاء الاصطناعي وأدواته واستخداماته اليومية." },
+  { id: 4, title: "مدن لا تنام", author: "ليان الحربي", category: "الروايات", price: "32 ر.س", oldPrice: "42 ر.س", rating: "4.7", reviews: "211", badge: "اختيار القراء", cover: "مدن لا تنام", accent: "teal", format: "ورقي", description: "رواية إنسانية عن أحلام صغيرة تكبر في مدينة واسعة لا تعرف السكون." },
+  { id: 5, title: "البرمجة من الصفر", author: "عمر الشمري", category: "البرمجة", price: "62 ر.س", oldPrice: "80 ر.س", rating: "4.8", reviews: "63", badge: "الأكثر طلبًا", cover: "البرمجة", accent: "gold", format: "رقمي", description: "تعلم التفكير البرمجي وابنِ أول تطبيق لك بأسلوب مبسط ومنظم." },
+  { id: 6, title: "اقتصاد المستقبل", author: "نواف القحطاني", category: "الاقتصاد", price: "44 ر.س", oldPrice: "55 ر.س", rating: "4.6", reviews: "42", badge: "ترشيحنا", cover: "اقتصاد المستقبل", accent: "plum", format: "ورقي + رقمي", description: "قراءة واضحة للتحولات الاقتصادية التي ستصنع سوق العمل في السنوات القادمة." },
 ];
 
-const categories = ["الكل", "مسارات", "أدوات", "محاكاة", "إرشاد"];
+const categories: { name: string; icon: LucideIcon; tone: string }[] = [
+  { name: "الروايات", icon: BookOpen, tone: "peach" }, { name: "تطوير الذات", icon: Sparkles, tone: "mint" }, { name: "الأعمال", icon: TrendingUp, tone: "blue" }, { name: "التقنية", icon: Zap, tone: "violet" }, { name: "الذكاء الاصطناعي", icon: Bot, tone: "cyan" }, { name: "البرمجة", icon: WandSparkles, tone: "gold" }, { name: "التاريخ", icon: CalendarDays, tone: "rose" }, { name: "الأطفال", icon: Heart, tone: "lavender" }];
 
 export default function Home() {
-  const [activeCategory, setActiveCategory] = useState("الكل");
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Product | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("الكل");
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [cart, setCart] = useState<Book[]>([]);
+  const [selected, setSelected] = useState<Book | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [querySent, setQuerySent] = useState(false);
 
-  const filtered = useMemo(() => products.filter((product) => {
-    const matchesCategory = activeCategory === "الكل" || product.category === activeCategory;
-    const query = search.trim().toLowerCase();
-    return matchesCategory && (!query || `${product.title} ${product.description}`.toLowerCase().includes(query));
+  const filteredBooks = useMemo(() => books.filter((book) => {
+    const matchesCategory = activeCategory === "الكل" || book.category === activeCategory;
+    const q = search.trim().toLowerCase();
+    return matchesCategory && (!q || `${book.title} ${book.author} ${book.category}`.toLowerCase().includes(q));
   }), [activeCategory, search]);
 
-  const scrollToProducts = () => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+  const toggleFavorite = (id: number) => setFavorites((items) => items.includes(id) ? items.filter((item) => item !== id) : [...items, id]);
+  const addToCart = (book: Book) => { setCart((items) => items.some((item) => item.id === book.id) ? items : [...items, book]); setCartOpen(true); };
+  const goTo = (id: string) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setMenuOpen(false); };
 
-  return (
-    <main dir="rtl" className="site-shell">
-      <div className="noise" />
-      <nav className="topbar container">
-        <a className="brand" href="#top" aria-label="مؤسسة التدريب المهني">
-          <span className="brand-mark"><Sparkles size={18} strokeWidth={2.4} /></span>
-          <span><b>التدريب</b><small>المهني · VTC</small></span>
-        </a>
-        <div className={`nav-links ${menuOpen ? "is-open" : ""}`}>
-          <a href="#products" onClick={() => setMenuOpen(false)}>المنتجات</a>
-          <a href="#about" onClick={() => setMenuOpen(false)}>لماذا الذكاء؟</a>
-          <a href="#journey" onClick={() => setMenuOpen(false)}>رحلتك</a>
-        </div>
-        <div className="nav-actions">
-          <button className="icon-button mobile-menu" onClick={() => setMenuOpen(!menuOpen)} aria-label="فتح القائمة">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
-          <button className="text-button">تسجيل الدخول</button>
-          <button className="nav-cta" onClick={scrollToProducts}>اكتشف المنتجات <ArrowUpLeft size={16} /></button>
-        </div>
-      </nav>
+  return <main className="bookstore" dir="rtl">
+    <div className="announcement"><span><Sparkles size={14} /> شحن مجاني للطلبات فوق 150 ر.س</span><span className="announcement-link">اكتشف عروض الأسبوع <ArrowLeft size={14} /></span></div>
+    <header className="site-header"><div className="header-inner">
+      <a className="book-logo" href="#top"><span className="logo-mark"><BookOpen size={21} /></span><span><strong>رفوف</strong><small>متجر الكتب الذكي</small></span></a>
+      <nav className={`main-nav ${menuOpen ? "open" : ""}`}><a href="#top" onClick={() => setMenuOpen(false)}>الرئيسية</a><a href="#books" onClick={() => setMenuOpen(false)}>الكتب</a><a href="#categories" onClick={() => setMenuOpen(false)}>التصنيفات</a><a href="#bestsellers" onClick={() => setMenuOpen(false)}>الأكثر مبيعًا</a><a href="#offers" onClick={() => setMenuOpen(false)}>العروض</a><a href="#authors" onClick={() => setMenuOpen(false)}>المؤلفون</a></nav>
+      <div className="header-actions"><button className="header-icon mobile-only" onClick={() => setMenuOpen(!menuOpen)} aria-label="القائمة">{menuOpen ? <X size={20} /> : <Menu size={20} />}</button><button className="header-icon" onClick={() => setFavorites([])} aria-label="المفضلة"><Heart size={19} />{favorites.length > 0 && <b>{favorites.length}</b>}</button><button className="header-icon" onClick={() => setCartOpen(true)} aria-label="السلة"><ShoppingBag size={19} />{cart.length > 0 && <b>{cart.length}</b>}</button><button className="login-button"><UserRound size={16} /> دخول</button></div>
+    </div><div className="search-wrap"><Search size={19} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ابحث عن كتاب، مؤلف، أو موضوع..." /><kbd>⌘ K</kbd></div></header>
 
-      <section id="top" className="hero container">
-        <div className="hero-copy reveal">
-          <div className="eyebrow"><span className="live-dot" /> مستقبل التدريب يبدأ هنا <span className="eyebrow-line" /></div>
-          <h1>مهاراتك،<br /><em>بذكاء</em> أكبر.</h1>
-          <p className="hero-lead">منتجات رقمية صُممت لتفتح لك أبواب التعلم، الإبداع، والفرص — بقوة الذكاء الاصطناعي.</p>
-          <div className="hero-buttons">
-            <button className="primary-button" onClick={scrollToProducts}>استكشف المنتجات <ChevronLeft size={18} /></button>
-            <button className="play-button" onClick={() => setSelected(products[0])}><span><Play size={15} fill="currentColor" /></span> شاهد كيف تعمل</button>
-          </div>
-          <div className="trust-row"><div className="avatars"><span>ن</span><span>م</span><span>س</span><span>+</span></div><span><b>+12,000</b> متعلم بدأ رحلته</span></div>
-        </div>
-        <div className="hero-art" aria-label="تصور بصري للذكاء الاصطناعي">
-          <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="orbit orbit-three" />
-          <div className="glow glow-one" /><div className="glow glow-two" />
-          <div className="core"><div className="core-inner"><BrainCircuit size={72} strokeWidth={1.2} /><span>AI</span></div></div>
-          <div className="float-card card-top"><span className="mini-icon cyan-bg"><Zap size={15} /></span><span><b>تعلم أسرع</b><small>مسار يتكيف معك</small></span><span className="signal">↗ 24%</span></div>
-          <div className="float-card card-bottom"><span className="mini-icon gold-bg"><Sparkles size={15} /></span><span><b>فكرة جديدة</b><small>اقتراح ذكي جاهز</small></span></div>
-          <div className="art-caption"><span className="caption-line" /> <span>ذكاء يصنع الفرق</span></div>
-        </div>
-      </section>
+    <section className="hero-bookstore" id="top"><div className="hero-content"><span className="eyebrow"><span className="eyebrow-dot" /> أكثر من 10,000 عنوان بين يديك</span><h1>اكتشف كتابك<br /><em>القادم.</em></h1><p>رفوفك تبدأ من هنا. مجموعة مختارة من الكتب التي تلهمك، تطورك، وتبقى معك في كل فصل من فصول الحياة.</p><div className="hero-actions"><button className="btn-primary" onClick={() => goTo("books")}>تصفح الكتب <ArrowLeft size={17} /></button><button className="btn-ghost" onClick={() => goTo("bestsellers")}><TrendingUp size={17} /> الأكثر مبيعًا</button></div><div className="reader-trust"><div className="trust-avatars"><span>ن</span><span>س</span><span>م</span><span>+8</span></div><span><strong>+24,000</strong> قارئ وجد كتابه معنا</span></div></div><div className="hero-books" aria-label="أغلفة كتب مميزة"><div className="hero-sparkle sparkle-one">✦</div><div className="hero-sparkle sparkle-two">✦</div><BookCover book={books[1]} size="small" className="floating-book left-book" /><BookCover book={books[0]} size="large" className="main-book" /><BookCover book={books[2]} size="small" className="floating-book right-book" /><div className="hero-glow" /></div></section>
 
-      <section className="stats-strip container" id="about">
-        <div><strong>01</strong><span>تعلم شخصي<br /><small>مصمم لك</small></span></div>
-        <div><strong>∞</strong><span>إمكانيات<br /><small>بلا حدود</small></span></div>
-        <div><strong>24/7</strong><span>معك في<br /><small>كل خطوة</small></span></div>
-        <div className="stats-note"><span className="sparkle-mini">✦</span> نبني اليوم<br /><b>مهارات الغد</b></div>
-      </section>
+    <section className="category-section section-width" id="categories"><div className="section-title"><div><span className="section-label">استكشف حسب اهتمامك</span><h2>كل فكرة لها <em>رف.</em></h2></div><button className="link-button">عرض كل التصنيفات <ArrowLeft size={15} /></button></div><div className="category-grid">{categories.map(({ name, icon: Icon, tone }) => <button className="category-card" key={name} onClick={() => { setActiveCategory(name === "التقنية" ? "الكل" : name); goTo("books"); }}><span className={`category-icon ${tone}`}><Icon size={22} /></span><strong>{name}</strong><small>{books.filter((book) => book.category === name || (name === "التقنية" && book.category === "البرمجة")).length + 12} كتاب</small></button>)}</div></section>
 
-      <section className="catalog container" id="products">
-        <div className="section-heading"><div><span className="section-kicker">مختاراتنا الرقمية</span><h2>أدوات تغيّر<br /><span>طريقة تعلّمك.</span></h2></div><p>كل منتج هنا صُمم بعناية<br />ليقرّبك خطوة من أهدافك.</p></div>
-        <div className="catalog-toolbar"><div className="filters">{categories.map((category) => <button key={category} className={activeCategory === category ? "active" : ""} onClick={() => setActiveCategory(category)}>{category}</button>)}</div><label className="search-box"><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="ابحث عن منتج..." /></label></div>
-        <div className="product-grid">{filtered.map((product, index) => <ProductCard key={product.id} product={product} index={index} onSelect={setSelected} />)}</div>
-        {!filtered.length && <div className="empty-state">لم نجد منتجاً بهذا الاسم. جرّب كلمة أخرى.</div>}
-      </section>
+    <section className="books-section section-width" id="books"><div className="section-title"><div><span className="section-label">مختارات رفوف</span><h2>كتب مختارة <em>لك.</em></h2></div><button className="link-button">عرض جميع الكتب <ArrowLeft size={15} /></button></div><div className="book-toolbar"><div className="book-tabs"><button className={activeCategory === "الكل" ? "active" : ""} onClick={() => setActiveCategory("الكل")}>الكل</button>{["الروايات", "تطوير الذات", "الأعمال", "البرمجة"].map((cat) => <button key={cat} className={activeCategory === cat ? "active" : ""} onClick={() => setActiveCategory(cat)}>{cat}</button>)}</div><button className="sort-button">الأكثر شيوعًا <ChevronDown size={15} /></button></div><div className="books-grid">{filteredBooks.map((book) => <BookCard key={book.id} book={book} favorite={favorites.includes(book.id)} onFavorite={() => toggleFavorite(book.id)} onCart={() => addToCart(book)} onOpen={() => setSelected(book)} />)}</div></section>
 
-      <section className="journey container" id="journey"><div className="journey-content"><span className="section-kicker">مصمم حولك</span><h2>لا تتعلم فقط.<br /><span>تقدّم.</span></h2><p>من أول فكرة إلى أول إنجاز، رفيقك الذكي موجود ليجعل كل خطوة أوضح، أسهل، وأكثر إلهاماً.</p><button className="outline-button" onClick={scrollToProducts}>ابدأ رحلتك <ArrowUpLeft size={16} /></button></div><div className="journey-visual"><div className="path-line" /><div className="journey-node node-1"><span>01</span><b>اكتشف</b><small>فضولك يقودك</small></div><div className="journey-node node-2"><span>02</span><b>جرّب</b><small>الخطوة تصنع الفرق</small></div><div className="journey-node node-3"><span>03</span><b>أنجز</b><small>نتيجة تفتخر بها</small></div><div className="journey-orb"><Orbit size={42} /></div></div></section>
+    <section className="bestseller-section section-width" id="bestsellers"><div className="section-title light-title"><div><span className="section-label">الكتب التي يتحدث عنها الجميع</span><h2>الأكثر مبيعًا <span className="fire-mark">✦</span></h2></div><button className="light-link">تصفح القائمة <ArrowLeft size={15} /></button></div><div className="ranking-list">{books.slice(0, 3).map((book, i) => <div className="ranking-card" key={book.id}><span className="rank-number">0{i + 1}</span><BookCover book={book} size="tiny" /><div className="rank-info"><strong>{book.title}</strong><small>{book.author}</small><span><Star size={13} fill="currentColor" /> {book.rating} <i>({book.reviews})</i></span></div><button className="rank-arrow" onClick={() => setSelected(book)}><ArrowUpLeft size={17} /></button></div>)}</div></section>
 
-      <footer className="footer container"><div className="brand"><span className="brand-mark"><Sparkles size={18} /></span><span><b>التدريب</b><small>المهني · VTC</small></span></div><span>منتجات رقمية من مؤسسة التدريب المهني</span><span>© 2026 VTC</span></footer>
+    <section className="offer-banner section-width" id="offers"><div className="offer-copy"><span className="offer-label"><Tag size={14} /> عرض لفترة محدودة</span><h2>خصومات تصل إلى <em>50%</em></h2><p>اجعل هذا الأسبوع بداية لقراءة جديدة. عروض مختارة على كتب تستحق مكانًا في رفوفك.</p><div className="countdown"><div><b>02</b><small>يوم</small></div><span>:</span><div><b>14</b><small>ساعة</small></div><span>:</span><div><b>36</b><small>دقيقة</small></div></div><button className="offer-button" onClick={() => goTo("books")}>اكتشف العروض <ArrowLeft size={16} /></button></div><div className="offer-art"><BookCover book={books[3]} size="small" className="offer-book back" /><BookCover book={books[4]} size="small" className="offer-book front" /><span className="offer-burst">50%<small>خصم</small></span></div></section>
 
-      {selected && <div className="modal-backdrop" onClick={() => setSelected(null)}><div className="product-modal" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="إغلاق"><X size={19} /></button><div className={`modal-icon ${selected.accent}`}><selected.icon size={30} /></div><span className="section-kicker">{selected.categoryLabel}</span><h3>{selected.title}</h3><p>{selected.description}</p><div className="modal-meta"><span><Clock3 size={16} /> {selected.meta}</span><span><Download size={16} /> متاح لكل المتعلمين</span></div><button className="primary-button wide" onClick={() => setSelected(null)}>ابدأ الآن <ChevronLeft size={18} /></button></div></div>}
-    </main>
-  );
+    <section className="smart-section section-width" id="authors"><div className="smart-icon"><Bot size={28} /></div><div><span className="section-label">رفيقك الذكي</span><h2>لست متأكدًا ماذا تقرأ؟</h2><p>أخبرنا بما تبحث عنه، وسيساعدك مساعد رفوف الذكي في العثور على كتاب يناسبك.</p></div><button className="btn-primary" onClick={() => setAssistantOpen(true)}>اسأل مساعد الكتب <MessageCircle size={17} /></button></section>
+
+    <footer className="site-footer"><div className="footer-main section-width"><div className="footer-brand"><a className="book-logo" href="#top"><span className="logo-mark"><BookOpen size={21} /></span><span><strong>رفوف</strong><small>متجر الكتب الذكي</small></span></a><p>مساحة تجمعك بالكتب التي تصنع فرقًا حقيقيًا.</p></div><div><h4>المتجر</h4><a href="#books">كل الكتب</a><a href="#bestsellers">الأكثر مبيعًا</a><a href="#offers">العروض</a></div><div><h4>خدمة العملاء</h4><a href="#top">تواصل معنا</a><a href="#top">الأسئلة الشائعة</a><a href="#top">سياسة الاسترجاع</a></div><div className="newsletter"><h4>كن أول من يعرف</h4><p>اشترك لتصلك ترشيحاتنا وعروضنا.</p><div><input placeholder="بريدك الإلكتروني" /><button aria-label="اشتراك"><ArrowLeft size={16} /></button></div></div></div><div className="footer-bottom section-width"><span>© 2026 رفوف. جميع الحقوق محفوظة.</span><span>صُنع بحب للقراء <Heart size={13} fill="currentColor" /></span></div></footer>
+
+    {selected && <div className="overlay" onClick={() => setSelected(null)}><div className="details-modal" onClick={(e) => e.stopPropagation()}><button className="close-button" onClick={() => setSelected(null)}><X size={19} /></button><BookCover book={selected} size="medium" /><div className="modal-details"><span className="book-badge">{selected.badge}</span><h2>{selected.title}</h2><p className="modal-author">بقلم {selected.author}</p><p>{selected.description}</p><div className="rating"><Star size={15} fill="currentColor" /> {selected.rating} <span>({selected.reviews} تقييم)</span></div><div className="modal-price"><strong>{selected.price}</strong><del>{selected.oldPrice}</del></div><button className="btn-primary full" onClick={() => { addToCart(selected); setSelected(null); }}>أضف إلى السلة <ShoppingBag size={17} /></button><button className="preview-button"><BookOpen size={16} /> اقرأ عينة مجانية</button></div></div></div>}
+    {cartOpen && <div className="overlay" onClick={() => setCartOpen(false)}><aside className="cart-drawer" onClick={(e) => e.stopPropagation()}><div className="drawer-head"><h2>سلة التسوق <span>({cart.length})</span></h2><button className="close-button" onClick={() => setCartOpen(false)}><X size={19} /></button></div>{cart.length ? <><div className="cart-items">{cart.map((book) => <div className="cart-item" key={book.id}><BookCover book={book} size="tiny" /><div><strong>{book.title}</strong><small>{book.author}</small><b>{book.price}</b></div><button onClick={() => setCart((items) => items.filter((item) => item.id !== book.id))}><X size={15} /></button></div>)}</div><div className="cart-total"><span>الإجمالي</span><strong>{cart.reduce((sum, book) => sum + Number(book.price.split(" ")[0]), 0)} ر.س</strong></div><button className="btn-primary full">إتمام الشراء <ArrowLeft size={17} /></button></> : <div className="empty-cart"><ShoppingBag size={36} /><p>سلتك تنتظر كتابك القادم.</p><button className="btn-ghost" onClick={() => setCartOpen(false)}>تصفح الكتب</button></div>}</aside></div>}
+    {assistantOpen && <div className="overlay" onClick={() => setAssistantOpen(false)}><div className="assistant-modal" onClick={(e) => e.stopPropagation()}><button className="close-button" onClick={() => setAssistantOpen(false)}><X size={19} /></button><div className="assistant-title"><span><Bot size={23} /></span><div><h2>مساعد رفوف الذكي</h2><small>جاهز ليساعدك في الاختيار</small></div></div><div className="assistant-chat"><div className="bot-message">مرحبًا! ما الموضوع الذي ترغب في القراءة عنه اليوم؟</div>{querySent && <><div className="user-message">أريد كتابًا يساعدني على تطوير مهارات القيادة</div><div className="bot-message">ترشيحي الأول لك هو <strong>ابدأ مشروعك الآن</strong> — عملي، واضح، ومناسب لبدايتك.</div></>}</div>{!querySent && <div className="assistant-suggestions"><button onClick={() => setQuerySent(true)}>تطوير مهارات القيادة</button><button onClick={() => setQuerySent(true)}>رواية ملهمة</button></div>}<div className="assistant-input"><input placeholder="اكتب ما تبحث عنه..." onKeyDown={(e) => e.key === "Enter" && setQuerySent(true)} /><button onClick={() => setQuerySent(true)}><Send size={17} /></button></div></div></div>}
+  </main>;
 }
 
-function ProductCard({ product, index, onSelect }: { product: Product; index: number; onSelect: (product: Product) => void }) {
-  const Icon = product.icon;
-  return <article className={`product-card ${product.featured ? "featured" : ""} accent-${product.accent}`} style={{ "--delay": `${index * 70}ms` } as React.CSSProperties} onClick={() => onSelect(product)}><div className="card-header"><span className="product-icon"><Icon size={22} strokeWidth={1.7} /></span><span className="product-tag">{product.tag}</span></div><div className="card-art"><div className="art-grid" /><Icon size={86} strokeWidth={0.7} /><span className="art-code">{product.id.toString().padStart(2, "0")} / AI</span></div><span className="card-category">{product.categoryLabel}</span><h3>{product.title}</h3><p>{product.description}</p><div className="card-footer"><span>{product.meta}</span><button aria-label={`فتح ${product.title}`}><ArrowUpLeft size={17} /></button></div></article>;
-}
+function BookCover({ book, size, className = "" }: { book: Book; size: "tiny" | "small" | "medium" | "large"; className?: string }) { return <div className={`book-cover ${size} cover-${book.accent} ${className}`}><span className="cover-top">رفوف</span><div className="cover-shape"><BookOpen size={size === "large" ? 34 : 19} /></div><strong>{book.cover}</strong><small>{book.author}</small><span className="cover-bottom">كتاب يغيّر شيئًا</span></div>; }
 
-void CirclePlay;
-void Mic2;
-void Check;
+function BookCard({ book, favorite, onFavorite, onCart, onOpen }: { book: Book; favorite: boolean; onFavorite: () => void; onCart: () => void; onOpen: () => void }) { return <article className="book-card"><div className="book-visual" onClick={onOpen}><BookCover book={book} size="medium" /><span className="book-badge">{book.badge}</span><button className={`favorite-button ${favorite ? "liked" : ""}`} onClick={(e) => { e.stopPropagation(); onFavorite(); }} aria-label="المفضلة"><Heart size={17} fill={favorite ? "currentColor" : "none"} /></button><button className="quick-preview" onClick={(e) => { e.stopPropagation(); onOpen(); }}><BookOpen size={15} /> معاينة</button></div><div className="book-info"><span className="book-category">{book.category}</span><h3>{book.title}</h3><p>{book.author}</p><div className="rating"><Star size={14} fill="currentColor" /> {book.rating} <span>({book.reviews})</span></div><div className="book-buy"><div><strong>{book.price}</strong><del>{book.oldPrice}</del></div><button className="add-cart" onClick={onCart}><ShoppingBag size={17} /></button></div></div></article>; }
